@@ -3,6 +3,8 @@ const electron = require('electron')
 const app = electron.app
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
+const Menu = electron.Menu
+const Tray = electron.Tray
 
 const path = require('path')
 const url = require('url')
@@ -10,6 +12,8 @@ const url = require('url')
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
+let tray
+let menu
 
 function createWindow () {
   // Create the browser window.
@@ -31,6 +35,43 @@ function createWindow () {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null
+  })
+
+  menu = Menu.buildFromTemplate([
+    {
+      label: 'Main'
+    },
+    {
+      label: 'Options',
+      submenu: [
+        {
+          label: 'Hide to Tray',
+          click: function() {
+            mainWindow.hide()
+            makeTray()
+          }
+        }
+      ]
+    }
+  ])
+  Menu.setApplicationMenu(menu)
+}
+
+function makeTray() {
+  if(tray != null) {
+    return
+  }
+
+  tray = new Tray('trayTemplate.png')
+
+  tray.on('click', function() {
+    if(tray != null) {
+      tray.destroy()
+      tray = null
+    }
+    if(!mainWindow.isVisible()) {
+      mainWindow.show()
+    }
   })
 }
 
